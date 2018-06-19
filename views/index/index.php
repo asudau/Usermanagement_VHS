@@ -8,7 +8,7 @@
 <table class='default'>
     <thead>
 		<tr>
-        <th style='width:10%'><span>Username 2 (Vorname Nachname)</span></th>
+        <th style='width:10%'><span>Username (Vorname Nachname)</span></th>
         <th style='width:10%'><span>EMail</span></th>
         <th style='width:5%'><span>1. Infomail erhalten</span></th>
         <th style='width:5%'><span>2. Infomail erhalten</span></th>
