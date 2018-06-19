@@ -6,6 +6,37 @@ class IndexController extends StudipController {
         parent::__construct($dispatcher);
         $this->plugin = $dispatcher->plugin;
         Navigation::activateItem('admin/usermanagement/index');
+        
+        $navcreate = new LinksWidget();
+        $navcreate->setTitle('Aktionen');
+        //$attr = array("onclick"=>"showModalNewSupervisorGroupAction()");
+        //$navcreate->addLink("Ausnahme hinzufügen", $this::url_for('/index'), Icon::create('add'), $attr);
+        // add "add dozent" to infobox
+        $search_obj = new SQLSearch("SELECT auth_user_md5.user_id, CONCAT(auth_user_md5.nachname, ', ', auth_user_md5.vorname, ' (' , auth_user_md5.email, ')' ) as fullname, username, perms "
+                            . "FROM auth_user_md5 "
+                            . "WHERE (CONCAT(auth_user_md5.Vorname, \" \", auth_user_md5.Nachname) LIKE :input "
+                            . "OR CONCAT(auth_user_md5.Nachname, \" \", auth_user_md5.Vorname) LIKE :input "
+                            . "OR auth_user_md5.username LIKE :input)"
+                            //. "AND auth_user_md5.user_id NOT IN "
+                            //. "(SELECT supervisor_group_user.user_id FROM supervisor_group_user WHERE supervisor_group_user.supervisor_group_id = '". $supervisorgroupid ."')  "
+                            . "ORDER BY Vorname, Nachname ",
+                _("Ausnahme hinzufügen"), "username");
+        
+        $mp = MultiPersonSearch::get('unset_user')
+            ->setLinkText(sprintf(_('Ausnahme hinzufügen')))
+            //->setDefaultSelectedUser($filtered_members['dozent']->pluck('user_id'))
+            ->setLinkIconPath("")
+            ->setTitle(sprintf(_('Ausnahme hinzufügen')))
+            ->setExecuteURL($this::url_for('/index/unset'))
+            ->setSearchObject($search_obj)
+            //->addQuickfilter(sprintf(_('%s der Einrichtung'), $this->status_groups['dozent']), $membersOfInstitute)
+            //->setNavigationItem('/')
+            ->render();
+        $element = LinkElement::fromHTML($mp, Icon::create('community+add', 'clickable'));
+        $navcreate->addElement($element);
+        
+        $sidebar = Sidebar::Get();
+        $sidebar->addWidget($navcreate);
     }
 
     public function before_filter(&$action, &$args)
@@ -30,8 +61,7 @@ class IndexController extends StudipController {
         foreach ($status_infos as $status_info){
             $this->data_spared[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
         }
-        
-        
+                
     }
 
     public function save_action(){
@@ -47,14 +77,42 @@ class IndexController extends StudipController {
     
     public function unset_action($user_id){
 
-        $status_info = UsermanagementAccountStatus::find($user_id);
-        $status_info->delete_mode = 'nie loeschen';
-        $status_info->account_status = 0;
-        UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
-        if ($status_info->store() !== false) {
-            $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
-            PageLayout::postMessage($message);
+         if ($user_id){
+            $status_info = UsermanagementAccountStatus::find($user_id);
+            $status_info->delete_mode = 'nie loeschen';
+            $status_info->account_status = 0;
+            UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
+            if ($status_info->store() !== false) {
+                $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                PageLayout::postMessage($message);
+            }
+        } else {
+            $mp = MultiPersonSearch::load('unset_user');
+            # User der Gruppe hinzufügen
+            foreach ($mp->getAddedUsers() as $user_id) {
+                $status_info = UsermanagementAccountStatus::find($user_id);
+                if ($status_info){
+                    $status_info->delete_mode = 'nie loeschen';
+                    $status_info->account_status = 0;
+                    UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
+                    if ($status_info->store() !== false) {
+                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                        PageLayout::postMessage($message);
+                    }
+                } else {
+                    $status_info = new UsermanagementAccountStatus();
+                    $status_info->user_id = $user_id;
+                    $status_info->account_status = 0;
+                    $status_info->delete_mode = 'nie loeschen'; //wenn nichts anderes bekannt ist das der default delete_mode
+                    $status_info->chdate = time();
+                    if ($status_info->store() !== false) {
+                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                        PageLayout::postMessage($message);
+                    }
+                }
+            }
         }
+       
         $this->redirect($this::url_for('/index'));
           
     }

@@ -34,7 +34,7 @@ class CronjobScheduleDeleteInactiveUser extends Migration
         
         Config::get()->create('USER_INACTIVITY_DELETE_MAIL', array(
             'value'       => 'Ihr Account wird aufgrund längerer Inaktivität gelöscht, '.
-                             'falls Sie sich nicht in den nächsten 2 Wochen einloggen und der Loeschung widersprechen.',
+                             'falls Sie sich nicht in den nächsten 3 Wochen einloggen und der Löschung widersprechen.',
             'is_default'  => 0,
             'type'        => 'string',
             'range'       => 'global',
@@ -54,11 +54,12 @@ class CronjobScheduleDeleteInactiveUser extends Migration
         Config::get()->create('USER_INACTIVITY_TIME_TILL_DELETE', array(
             'value'       => 22,
             'is_default'  => 0,
-            'type'        => 'integer',
+            'type'        => 'string',
             'range'       => 'global',
             'section'     => 'vhs',
             'description' => 'User, die zur Loeschung vorgemerkt sind, haben X Tage Zeit der Loeschung zu widersprechen.'
             ));
+        
         Config::get()->create('USERMANAGEMENT_TEST_MODE', array(
             'value'       => 'true',
             'is_default'  => 0,
@@ -66,6 +67,24 @@ class CronjobScheduleDeleteInactiveUser extends Migration
             'range'       => 'global',
             'section'     => 'vhs',
             'description' => 'Testmodus für den Cronjob zur Löschung inaktiver Nutzer'
+            ));
+        
+        Config::get()->create('USERMANAGEMENT_TEST_MODE_USER', array(
+            'value'       => 'b3570651fed225931a99d5f4683838c7',
+            'is_default'  => 0,
+            'type'        => 'string',
+            'range'       => 'global',
+            'section'     => 'vhs',
+            'description' => 'Nutzer_ID für das Versenden einer Testmail'
+            ));
+        
+        Config::get()->create('USER_INACTIVITY_DELETE_MAIL_SUBJECT', array(
+            'value'       => 'Löschung Ihres Stud.IP Accounts',
+            'is_default'  => 0,
+            'type'        => 'string',
+            'range'       => 'global',
+            'section'     => 'vhs',
+            'description' => 'Betreff für Systemmails an Nutzer'
             ));
 
     }

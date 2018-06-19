@@ -5,7 +5,6 @@
 * @access public
 */
 require_once 'lib/classes/CronJob.class.php';
-include_once __DIR__.'/../models/UsermanagementAccountStatus.class.php';
 
 class ScheduleDeleteInactiveUser extends CronJob
 {
@@ -32,26 +31,15 @@ class ScheduleDeleteInactiveUser extends CronJob
         $mailtext = 'Liebe/r Nutzer/in             
                 ' . $config_mail   . '
                     
-                Account: ' . $user->Vorname . ' ' . $user->Nachname . '                                
-                Username: ' . $user->username ;
-        //$mailtext = studip_utf8encode(Config::get('USER_INACTIVITY_DELETE_MAIL')->value);
-             /**   
-                '<html>
-          
-
-            <body>
-
-            <h2>Account-Benachrichtigung für ' . $user->Vorname . ' ' . $user->Nachname . ':</h2>
-
-            <p>Sie haben Ihren Account seit xxx Tagen nicht genutzt</p>
-
-            </body>
-            </html>
-            ';**/
+                Account: ' . $user->Vorname . ' ' . $user->Nachname . '                       
+                Username: ' . $user->username .'
+                
+                Link zum System: ' . $GLOBALS['ABSOLUTE_URI_STUDIP'] ;
+            
 
             $empfaenger = $contact_mail;
             //$absender   = "asudau@uos.de";
-            $betreff    = "Ihr Stud.IP Account auf der eL4 Projektplattform";
+            $betreff    = Config::get()->getValue('USER_INACTIVITY_DELETE_MAIL_SUBJECT');
 
             $template = $GLOBALS['template_factory']->open('mail/html');
             $template->set_attribute('lang', 'de');
@@ -101,19 +89,14 @@ class ScheduleDeleteInactiveUser extends CronJob
         $last_inactivity = time() - ($max_inactivity * $sec_per_day);
         
         if (Config::get()->getValue(USERMANAGEMENT_TEST_MODE)){
+            $user_id = Config::get()->getValue(USERMANAGEMENT_TEST_MODE_USER);
             echo 'test_mode';
-            $user_id = 'b3570651fed225931a99d5f4683838c7'; //asudau eL4
-            self::check_on_user($user_id);
-             $status_info = UsermanagementAccountStatus::find($user_id);
-            $status_info->account_status = 0;
-            $status_info->store();
-            /**
-            $user_id = '1f723af2ad73fd86786ce429ebee6b5b'; //test_dozent localhost studip34
+            //$user_id = 'b3570651fed225931a99d5f4683838c7'; //asudau eL4
             self::check_on_user($user_id);
             $status_info = UsermanagementAccountStatus::find($user_id);
+            self::scheduleForDeleteAndInform($status_info, true);
             $status_info->account_status = 0;
             $status_info->store();
-            **/
             
         } else {
             

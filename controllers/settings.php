@@ -24,12 +24,13 @@ class SettingsController extends StudipController {
         $this->settings[] = 'USER_DELETE_MAIL_REMINDER';
         $this->settings[] = 'USER_INACTIVITY_TIME_TILL_DELETE';
         $this->settings[] = 'USERMANAGEMENT_TEST_MODE';
-        
+        $this->settings[] = 'USER_INACTIVITY_DELETE_MAIL_SUBJECT';
+        $this->settings[] = 'USERMANAGEMENT_TEST_MODE_USER';
     }
 
     public function save_action($config_value){
-         
-        Config::get()->store($config_value, Request::option('value'));
+        
+        Config::get()->store($config_value, Request::get('value'));
         $message = MessageBox::success(_('Die Änderungen wurden übernommen.'));
         PageLayout::postMessage($message);
 
@@ -56,6 +57,7 @@ class SettingsController extends StudipController {
         return PluginEngine::getURL($this->dispatcher->plugin, $params, join('/', $args));
     }
     
+    //TODO tut noch nix
      public function sendMail_action($user_id)
     {
 
