@@ -83,7 +83,7 @@ class ScheduleDeleteInactiveUser extends CronJob
     
     public function execute($last_result, $parameters = array())
     {
-        PluginEngine::getPlugin('Usermanagement');
+        PluginEngine::getPlugin('Usermanagement_VHS');
         $max_inactivity = Config::get()->getValue(USER_INACTIVITY_BEFORE_DELETE);
         $sec_per_day = 86400;
         $last_inactivity = time() - ($max_inactivity * $sec_per_day);
