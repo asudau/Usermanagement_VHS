@@ -76,7 +76,11 @@ class ScheduleDeleteInactiveUser extends CronJob
                 $status_info->account_status = 2;
                 $status_info->store();
             }
-        } else echo 'mail konnte nicht versendet werden: ' . $status_info->user_id . ' \n';
+        } else {
+            //Mail konnte nicht zugestellt werden (status == 3)
+            $status_info->account_status = 3;
+            $status_info->store();
+        }
     }
     
     
