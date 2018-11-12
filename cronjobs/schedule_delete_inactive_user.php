@@ -152,7 +152,7 @@ class ScheduleDeleteInactiveUser extends CronJob
                     $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
                     foreach($seminare_dozent as $membership){
                         $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
-                        if ($count > 1){
+                        if ($count < 2){
                             $single_dozent_in_seminar = true;
                         }
                         //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
