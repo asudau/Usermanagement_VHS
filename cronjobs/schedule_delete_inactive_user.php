@@ -144,6 +144,29 @@ class ScheduleDeleteInactiveUser extends CronJob
                     self::scheduleForDeleteAndInform($status_info, true);
                 }
                 
+            } else if ($status_info->account_status == 2 && $status_info->delete_mode == 'aktivitaet'){
+                //account nicht mehr gültig und zur Löschung vorgesehen
+                if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
+                    $user = User::find($user_id);
+                    $single_dozent_in_seminar = false;
+                    $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
+                    foreach($seminare_dozent as $membership){
+                        $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
+                        if ($count > 1){
+                            $single_dozent_in_seminar = true;
+                        }
+                        //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
+                    } if (!$single_dozent_in_seminar){
+                        //$user = new UserManagement($user_id);
+                        //$user->deleteUser(false);
+                    } else {
+                        //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
+                        $status_info->account_status = 4;
+                        $status_info->store();
+                    }
+                }
+                
+                
             } else if (!$status_info){
                 //Neuen Eintrag im Usermanagement anlegen
                 $status_info = new UsermanagementAccountStatus();
