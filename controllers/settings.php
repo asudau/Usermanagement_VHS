@@ -5,7 +5,6 @@ class SettingsController extends StudipController {
     {
         parent::__construct($dispatcher);
         $this->plugin = $dispatcher->plugin;
-        Navigation::activateItem('admin/usermanagement/settings');
     }
 
     public function before_filter(&$action, &$args)
@@ -14,7 +13,7 @@ class SettingsController extends StudipController {
         PageLayout::setTitle(_("Erweitertes Usermanagement - Einstellungen"));
 
         // $this->set_layout('layouts/base');
-        $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
+        //$this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
     }
 
     public function index_action()
@@ -34,7 +33,7 @@ class SettingsController extends StudipController {
         $message = MessageBox::success(_('Die Änderungen wurden übernommen.'));
         PageLayout::postMessage($message);
 
-        $this->redirect($this::url_for('/settings'));
+        $this->redirect($this::url_for('/index'));
           
     }
     

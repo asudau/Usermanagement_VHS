@@ -25,7 +25,9 @@ class Usermanagement_VHS extends StudipPlugin implements AdministrationPlugin, S
         if($perm->have_perm('root')){
             $navigation = new Navigation($this->getDisplayName(), PluginEngine::getURL($this, array(), 'index'));
             $navigation->addSubNavigation('index', new Navigation('Übersicht', PluginEngine::getURL($this, array(), 'index')));
-            $navigation->addSubNavigation('settings', new Navigation('Einstellungen', PluginEngine::getURL($this, array(), 'settings')));
+            
+            $navigation->addSubNavigation('nomail', new Navigation('Fehler bei Mailzustellung', PluginEngine::getURL($this, array(), 'index/nomail')));
+            $navigation->addSubNavigation('problemdelete', new Navigation('Fehler beim Löschen', PluginEngine::getURL($this, array(), 'index/problemdelete')));
             Navigation::addItem('/admin/usermanagement', $navigation);
         } 
     }

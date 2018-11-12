@@ -5,7 +5,6 @@ class IndexController extends StudipController {
     {
         parent::__construct($dispatcher);
         $this->plugin = $dispatcher->plugin;
-        Navigation::activateItem('admin/usermanagement/index');
         
         $navcreate = new LinksWidget();
         $navcreate->setTitle('Aktionen');
@@ -34,6 +33,12 @@ class IndexController extends StudipController {
             ->render();
         $element = LinkElement::fromHTML($mp, Icon::create('community+add', 'clickable'));
         $navcreate->addElement($element);
+        //new $navigation->addSubNavigation('settings', new Navigation('Einstellungen', PluginEngine::getURL($this, array(), 'settings')));
+        
+        $navcreate->addLink(
+            _('Einstellungen'),
+            PluginEngine::getLink($this->plugin, [], 'settings'),
+            Icon::create('edit', 'clickable'), ['data-dialog' => "size=auto;reload-on-close"]);
         
         $sidebar = Sidebar::Get();
         $sidebar->addWidget($navcreate);
@@ -50,6 +55,7 @@ class IndexController extends StudipController {
 
     public function index_action()
     {
+        Navigation::activateItem('admin/usermanagement/index');
         $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (1, 2) AND delete_mode LIKE 'aktivitaet'");
         $this->data = array();
         foreach ($status_infos as $status_info){
@@ -62,6 +68,28 @@ class IndexController extends StudipController {
             $this->data_spared[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
         }
                 
+    }
+    
+    public function nomail_action()
+    {
+        Navigation::activateItem('admin/usermanagement/nomail');
+        $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (3) AND delete_mode LIKE 'aktivitaet'");
+        $this->data = array();
+        foreach ($status_infos as $status_info){
+            $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+        }
+               
+    }
+    
+    public function problemdelete_action()
+    {
+        Navigation::activateItem('admin/usermanagement/problemdelete');
+        $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (4) AND delete_mode LIKE 'aktivitaet'");
+        $this->data = array();
+        foreach ($status_infos as $status_info){
+            $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+        }
+            
     }
 
     public function save_action(){

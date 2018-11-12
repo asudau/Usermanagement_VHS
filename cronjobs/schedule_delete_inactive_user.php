@@ -157,8 +157,11 @@ class ScheduleDeleteInactiveUser extends CronJob
                         }
                         //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
                     } if (!$single_dozent_in_seminar){
-                        //$user = new UserManagement($user_id);
-                        //$user->deleteUser(false);
+                        $user = new UserManagement($user_id);
+                        $user->deleteUser(false);
+                        //account gelöscht (status == 5)
+                        $status_info->account_status = 5;
+                        $status_info->store();
                     } else {
                         //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
                         $status_info->account_status = 4;
