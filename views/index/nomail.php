@@ -3,15 +3,19 @@
 <body>
     <div>
 <h1>Informationsmail konnte nicht zugestellt werden (<?= count($data) ?>)</h1>
-
+<p> Dies kann verschiedene Ursachen haben wie z.B. eine nicht (mehr) gültige Mailadresse. Da in diesem Fall eine Nutzer nich tüber die bevorstehende Löschung 
+    des Accounts informiert werden kann, sollte im Einzalfall manuell entschieden werden wie zu verfahren ist:
+    <ul>
+        <li>Nutzer trotzdem löschen</li>
+        <li>E-Mailadresse ändern</li>
+    </ul>
+</p>
 
 <table class='default'>
     <thead>
 		<tr>
         <th style='width:10%'><span>Username (Vorname Nachname)</span></th>
         <th style='width:10%'><span>EMail</span></th>
-        <th style='width:5%'><span>1. Infomail erhalten</span></th>
-        <th style='width:5%'><span>2. Infomail erhalten</span></th>
         <th style='width:10%'><span>Löschung geplant am</span></th>
         <th style='width:10%'>Aktionen</th>
         <!--<th>Courseware besucht?</th>-->
@@ -22,10 +26,8 @@
         
             <td><?= $d['user']['username'] . ' (' . $d['user']['Vorname'] . ' ' . $d['user']['Nachname'] . ') '?></td>
             <td><?= $d['user']['Email']?></td>
-            <td><?= in_array($d['status'], array("1", "2")) ? 'x' : '-' ?> </td>
-            <td><?= $d['status']== 2 ? 'x' : '-' ?> </td>
             <td><?= date('d.m.Y', UserConfig::get($d['user']['user_id'])->getValue(EXPIRATION_DATE)) ?></td>
-            <td><a href='<?=$this->controller->url_for('index/unset/' . $d['user']['user_id']) ?>' title='Dauerhafte Ausnahme für Nutzer einrichten'><?=Icon::create('remove')?></a><br/></td>
+            <td><a href='<?=$this->controller->url_for('index/delete_without_mail/' . $d['user']['user_id']) ?>' title='Nutzer/in trotzdem löschen'><?=Icon::create('remove-circle')?></a><br/></td>
         </tr>
 <?php } ?>
 </table>

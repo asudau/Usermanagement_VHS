@@ -5,7 +5,8 @@
  * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
  * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
  * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
- * status   5 == erfolgreich gelöscht
+ * status   5 == Nutzer trotz fehlerhafler Mailadresse löschen
+ * status   6 == erfolgreich gelöscht
 */
 
 require_once 'lib/archiv.inc.php';
@@ -210,6 +211,15 @@ class IndexController extends StudipController {
         }
 
         $this->redirect($this::url_for('/index/problemdelete'));
+    }
+    
+    public function delete_without_mail_action($user_id){
+        $status_info = UsermanagementAccountStatus::find($user_id);
+        $status_info->account_status = 5;
+        if ($status_info->store()){
+                PageLayout::postMessage(MessageBox::success(_('Unzustellbare Mails werden für diesen Nutzer ignoriert.')));
+        }
+        $this->redirect($this::url_for('/index/nomail'));
     }
     
     public function get_mp($seminar_id){
