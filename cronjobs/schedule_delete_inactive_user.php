@@ -10,7 +10,8 @@
  * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
  * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
  * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
- * status   5 == erfolgreich gelöscht
+ * status   5 == Nutzer trotz fehlerhafler Mailadresse löschen
+ * status   6 == erfolgreich gelöscht
 */
 require_once 'lib/classes/CronJob.class.php';
 
@@ -152,7 +153,8 @@ class ScheduleDeleteInactiveUser extends CronJob
                     self::scheduleForDeleteAndInform($status_info, true);
                 }
                 
-            } else if ($status_info->account_status == 2 && $status_info->delete_mode == 'aktivitaet'){
+            //Nutzer hat alle Infomails erhalten (2) oder fehlerhafte Mailadresse soll ignoriert werden (5)   
+            } else if (($status_info->account_status == 2 || $status_info->account_status == 5 ) && $status_info->delete_mode == 'aktivitaet'){
                 //account nicht mehr gültig und zur Löschung vorgesehen
                 if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
                     $user = User::find($user_id);
@@ -166,9 +168,9 @@ class ScheduleDeleteInactiveUser extends CronJob
                         //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
                     } if (!$single_dozent_in_seminar){
                         $user = new UserManagement($user_id);
-                        $user->deleteUser(false);
-                        //account gelöscht (status == 5)
-                        $status_info->account_status = 5;
+                        $user->deleteUser(false); //false: Dokumente nicht löschen
+                        //account gelöscht (status == 6)
+                        $status_info->account_status = 6;
                         $status_info->store();
                     } else {
                         //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
