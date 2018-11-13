@@ -1,4 +1,15 @@
 <?php
+/*
+ * status   0 == keine Aktion erforderlich/Löschvermerk zurückgesetzt
+ * status   1 == zur Löschung vorgemerkt
+ * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
+ * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
+ * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
+ * status   5 == erfolgreich gelöscht
+*/
+
+require_once 'lib/archiv.inc.php';
+
 class IndexController extends StudipController {
 
     public function __construct($dispatcher)
@@ -50,7 +61,7 @@ class IndexController extends StudipController {
         PageLayout::setTitle(_("Erweitertes Usermanagement - Übersicht"));
 
         // $this->set_layout('layouts/base');
-        $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
+        //$this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
     }
 
     public function index_action()
@@ -87,9 +98,37 @@ class IndexController extends StudipController {
         $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (4) AND delete_mode LIKE 'aktivitaet'");
         $this->data = array();
         foreach ($status_infos as $status_info){
-            $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
-        }
+            $user = User::find($status_info->user_id);
+            if ($user->course_memberships){
+                $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
+                foreach($seminare_dozent as $membership){
+                    if (Course::find($membership->seminar_id)){
+                        $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
+                        //if ($count < 2){
+                            $seminare[] = $membership;
+                        //}
+                    }
+                }
+                $this->data[] = array('user' => $user, 
+                    'status' => $status_info->account_status,
+                    'seminare' => $seminare
+                    );
+            }
+        }  
             
+    }
+    
+    public function archiveseminar_action($sem_id){
+        in_archiv($sem_id);
+        $sem = new Seminar($sem_id);
+        // Delete that Seminar.
+        if ($sem->delete()) {
+            $message = MessageBox::success(_('Die Veranstaltung wurde archiviert.'));
+            PageLayout::postMessage($message);
+        }
+
+        $this->redirect($this::url_for('/index/problemdelete'));
+        
     }
 
     public function save_action(){
@@ -156,6 +195,44 @@ class IndexController extends StudipController {
         }
         $this->redirect($this::url_for('/index'));
           
+    }
+    
+    public function add_dozent_action($sem_id){
+        
+        $mp = MultiPersonSearch::load('add_dozent_' . $sem_id);
+        # User der Gruppe hinzufügen
+        foreach ($mp->getAddedUsers() as $user_id) {
+            $sem = new Seminar($sem_id);
+            if ($sem){
+                $sem->addMember($user_id, 'dozent');
+                PageLayout::postMessage(MessageBox::success(_('Der Dozentenaccount wurd hinzugefügt.')));
+            }
+        }
+
+        $this->redirect($this::url_for('/index/problemdelete'));
+    }
+    
+    public function get_mp($seminar_id){
+        
+        $search_object = new SQLSearch("SELECT auth_user_md5.user_id, CONCAT(auth_user_md5.nachname, ', ', auth_user_md5.vorname, ' (' , auth_user_md5.email, ')' ) as fullname, username, perms "
+                            . "FROM auth_user_md5 "
+                            . "WHERE (CONCAT(auth_user_md5.Vorname, \" \", auth_user_md5.Nachname) LIKE :input "
+                            . "OR CONCAT(auth_user_md5.Nachname, \" \", auth_user_md5.Vorname) LIKE :input "
+                            . "OR auth_user_md5.username LIKE :input)"
+                            . "AND perms LIKE 'dozent'"
+                            . "ORDER BY Vorname, Nachname ",
+                _(""), "username");
+        
+        return MultiPersonSearch::get('add_dozent_' . $seminar_id)
+            ->setLinkText(sprintf(_('')))
+            //->setDefaultSelectedUser($filtered_members['dozent']->pluck('user_id'))
+            ->setLinkIconPath(Icon::create("person+add"))
+            ->setTitle(sprintf(_('Dozent hinzufügen')))
+            ->setExecuteURL($this::url_for('/index/add_dozent/' . $seminar_id))
+            ->setSearchObject($search_object)
+            //->addQuickfilter(sprintf(_('%s der Einrichtung'), $this->status_groups['dozent']), $membersOfInstitute)
+            //->setNavigationItem('/')
+            ->render();
     }
     
     // customized #url_for for plugins
