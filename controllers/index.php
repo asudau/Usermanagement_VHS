@@ -114,6 +114,9 @@ class IndexController extends StudipController {
                     'status' => $status_info->account_status,
                     'seminare' => $seminare
                     );
+            } else {
+                $status_info->account_status = 2;
+                $status_info->store();
             }
         }  
             
@@ -201,12 +204,33 @@ class IndexController extends StudipController {
     public function add_dozent_action($sem_id){
         
         $mp = MultiPersonSearch::load('add_dozent_' . $sem_id);
-        # User der Gruppe hinzufügen
-        foreach ($mp->getAddedUsers() as $user_id) {
-            $sem = new Seminar($sem_id);
-            if ($sem){
+        
+        $sem = new Seminar($sem_id);
+        if ($sem){
+            $old_dozenten = $sem->getMembers('dozent');
+            # User der Gruppe hinzufügen
+            foreach ($mp->getAddedUsers() as $user_id) {
                 $sem->addMember($user_id, 'dozent');
                 PageLayout::postMessage(MessageBox::success(_('Der Dozentenaccount wurd hinzugefügt.')));
+            }
+            foreach ($old_dozenten as $dozent){
+                $status_info = UsermanagementAccountStatus::find($dozent['user_id']);
+                if ($status_info){
+                    $user = User::find($dozent['user_id']);
+                    $single_dozent_in_seminar = false;
+                    $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
+                    foreach($seminare_dozent as $membership){
+                        $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
+                        if ($count < 2){
+                            //$single_dozent_in_seminar = true;
+                        }
+                     //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
+                    } if (!$single_dozent_in_seminar){
+                        //zurücksetzen für standard lösch-prozess (status == 2)
+                        $status_info->account_status = 2;
+                        $status_info->store();
+                    }
+                }
             }
         }
 
