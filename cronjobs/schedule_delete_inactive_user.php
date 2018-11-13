@@ -3,6 +3,14 @@
 *
 * @author Annelene Sudau <asudau@uos.de>
 * @access public
+ * 
+ * 
+ * status   0 == keine Aktion erforderlich/Löschvermerk zurückgesetzt
+ * status   1 == zur Löschung vorgemerkt
+ * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
+ * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
+ * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
+ * status   5 == erfolgreich gelöscht
 */
 require_once 'lib/classes/CronJob.class.php';
 
