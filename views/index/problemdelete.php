@@ -3,7 +3,7 @@
 <body>
     <div>
 <h1>Dozentenaccounts konnten nicht gelöscht werden (<?= count($data) ?>)</h1>
-<p>Dozent/Innen die in einer oder mehreren Veranstaltungen als <b> einzige/r </b> Dozent/in eingetragen sind können nicht gelöscht werden. Mögliche Lösungen:
+<p>Dozent/Innen die in einer oder mehreren Veranstaltungen als <b> einzige/r </b> Dozent/in eingetragen sind können nicht gelöscht werden. Mögliche Lösungen zum Beheben des Konfliktes:
 <ul>
     <li>Veranstaltung archivieren (Achtung kein Zugriff/Wiederherstellung der Veranstaltung möglich)</li>
     <li>weitere aktive Dozierende eintragen</li>
