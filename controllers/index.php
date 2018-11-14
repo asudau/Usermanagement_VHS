@@ -88,7 +88,9 @@ class IndexController extends StudipController {
         $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (3) AND delete_mode LIKE 'aktivitaet'");
         $this->data = array();
         foreach ($status_infos as $status_info){
-            $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+            if(UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
+                $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+            }
         }
                
     }
@@ -111,10 +113,12 @@ class IndexController extends StudipController {
                         }
                     }
                 }
-                $this->data[] = array('user' => $user, 
-                    'status' => $status_info->account_status,
-                    'seminare' => $seminare
-                    );
+                if(UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
+                    $this->data[] = array('user' => $user, 
+                        'status' => $status_info->account_status,
+                        'seminare' => $seminare
+                        );
+                }
             } else {
                 $status_info->account_status = 2;
                 $status_info->chdate = time();
