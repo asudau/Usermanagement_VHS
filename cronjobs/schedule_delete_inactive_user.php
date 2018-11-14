@@ -83,11 +83,13 @@ class ScheduleDeleteInactiveUser extends CronJob
                 echo 'vorgemerkt: ' . $status_info->user_id . ' \n';
             } else {
                 $status_info->account_status = 2;
+                $status_info->chdate = time();
                 $status_info->store();
             }
         } else {
             //Mail konnte nicht zugestellt werden (status == 3)
             $status_info->account_status = 3;
+            $status_info->chdate = time();
             $status_info->store();
         }
     }
@@ -109,6 +111,7 @@ class ScheduleDeleteInactiveUser extends CronJob
             $status_info = UsermanagementAccountStatus::find($user_id);
             self::scheduleForDeleteAndInform($status_info, true);
             $status_info->account_status = 0;
+            $status_info->chdate = time();
             $status_info->store();
             
         } else {
@@ -171,10 +174,12 @@ class ScheduleDeleteInactiveUser extends CronJob
                         $user->deleteUser(false); //false: Dokumente nicht löschen
                         //account gelöscht (status == 6)
                         $status_info->account_status = 6;
+                        $status_info->chdate = time();
                         $status_info->store();
                     } else {
                         //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
                         $status_info->account_status = 4;
+                        $status_info->chdate = time();
                         $status_info->store();
                     }
                 }
@@ -190,7 +195,14 @@ class ScheduleDeleteInactiveUser extends CronJob
                 $status_info->store();
                 //schedule_for_delete_and_inform
                 self::scheduleForDeleteAndInform($status_info);
-            } else echo 'nix mehr zu tun';
+            } if ($status_info && !UserConfig::get($user_id)->getValue(EXPIRATION_DATE)){
+                $status_info->account_status = 0;
+                $status_info->chdate = time();
+                $status_info->store();
+            }
+            
+            
+            else echo 'nix mehr zu tun';
     }
   
 }
