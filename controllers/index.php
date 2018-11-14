@@ -99,6 +99,7 @@ class IndexController extends StudipController {
         $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (4) AND delete_mode LIKE 'aktivitaet'");
         $this->data = array();
         foreach ($status_infos as $status_info){
+            $seminare = [];
             $user = User::find($status_info->user_id);
             if ($user->course_memberships){
                 $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
