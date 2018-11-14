@@ -105,9 +105,9 @@ class IndexController extends StudipController {
                 foreach($seminare_dozent as $membership){
                     if (Course::find($membership->seminar_id)){
                         $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
-                        //if ($count < 2){
+                        if ($count < 2){
                             $seminare[] = $membership;
-                        //}
+                        }
                     }
                 }
                 $this->data[] = array('user' => $user, 
