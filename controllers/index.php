@@ -117,6 +117,7 @@ class IndexController extends StudipController {
                     );
             } else {
                 $status_info->account_status = 2;
+                $status_info->chdate = time();
                 $status_info->store();
             }
         }  
@@ -135,17 +136,6 @@ class IndexController extends StudipController {
         $this->redirect($this::url_for('/index/problemdelete'));
         
     }
-
-    public function save_action(){
-
-        if ($entry->store() !== false) {
-            $message = MessageBox::success(_('Die Änderungen wurden übernommen.'));
-            PageLayout::postMessage($message);
-        }
-
-        $this->redirect($this::url_for('/index'));
-          
-    }
     
     public function unset_action($user_id){
 
@@ -153,6 +143,7 @@ class IndexController extends StudipController {
             $status_info = UsermanagementAccountStatus::find($user_id);
             $status_info->delete_mode = 'nie loeschen';
             $status_info->account_status = 0;
+            $status_info->chdate = time();
             UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
             if ($status_info->store() !== false) {
                 $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
@@ -166,6 +157,7 @@ class IndexController extends StudipController {
                 if ($status_info){
                     $status_info->delete_mode = 'nie loeschen';
                     $status_info->account_status = 0;
+                    $status_info->chdate = time();
                     UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
                     if ($status_info->store() !== false) {
                         $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
