@@ -26,8 +26,10 @@ class Usermanagement_VHS extends StudipPlugin implements AdministrationPlugin, S
             $navigation = new Navigation($this->getDisplayName(), PluginEngine::getURL($this, array(), 'index'));
             $navigation->addSubNavigation('index', new Navigation('Übersicht', PluginEngine::getURL($this, array(), 'index')));
             
-            $navigation->addSubNavigation('nomail', new Navigation('Fehler bei Mailzustellung', PluginEngine::getURL($this, array(), 'index/nomail')));
-            $navigation->addSubNavigation('problemdelete', new Navigation('Fehler beim Löschen', PluginEngine::getURL($this, array(), 'index/problemdelete')));
+            $anzahl_fehler_mail = count(UsermanagementAccountStatus::findBySQL("account_status IN (3) AND delete_mode LIKE 'aktivitaet'"));
+            $anzahl_fehler_loeschen = count(UsermanagementAccountStatus::findBySQL("account_status IN (4) AND delete_mode LIKE 'aktivitaet'"));
+            $navigation->addSubNavigation('nomail', new Navigation('Fehler bei Mailzustellung (' . $anzahl_fehler_mail . ')', PluginEngine::getURL($this, array(), 'index/nomail')));
+            $navigation->addSubNavigation('problemdelete', new Navigation('Fehler beim Löschen (' . $anzahl_fehler_loeschen . ')', PluginEngine::getURL($this, array(), 'index/problemdelete')));
             Navigation::addItem('/admin/usermanagement', $navigation);
         } 
     }
