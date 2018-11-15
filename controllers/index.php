@@ -90,7 +90,8 @@ class IndexController extends StudipController {
         $this->data = array();
         foreach ($status_infos as $status_info){
             if(UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
-                $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+                $seminar_user = new Seminar_User(User::find($status_info->user_id));
+                $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status, 'last_lifesign' => $seminar_user->get_last_action());
             }
         }
                
@@ -119,7 +120,7 @@ class IndexController extends StudipController {
                     $this->data[] = array('user' => $user, 
                         'status' => $status_info->account_status,
                         'seminare' => $seminare,
-                        'last_lifesign' => $seminar_user->last_online_time
+                        'last_lifesign' => $seminar_user->get_last_action()
                         );
                 }
             } else {

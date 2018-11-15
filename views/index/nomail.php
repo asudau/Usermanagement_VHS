@@ -16,6 +16,7 @@
 		<tr>
         <th style='width:10%'><span>Username (Vorname Nachname)</span></th>
         <th style='width:10%'><span>EMail</span></th>
+        <th style='width:5%'><span>Zuletzt aktiv am</span></th>
         <th style='width:10%'><span>Löschung geplant am</span></th>
         <th style='width:10%'>Aktionen</th>
         <!--<th>Courseware besucht?</th>-->
@@ -26,6 +27,7 @@
         
             <td><?= $d['user']['username'] . ' (' . $d['user']['Vorname'] . ' ' . $d['user']['Nachname'] . ') '?></td>
             <td><?= $d['user']['Email']?></td>
+            <td><?= date('d.m.Y', $d['last_lifesign']) ?></td>
             <td><?= date('d.m.Y', UserConfig::get($d['user']['user_id'])->getValue(EXPIRATION_DATE)) ?></td>
             <td><a href='<?=$this->controller->url_for('index/delete_without_mail/' . $d['user']['user_id']) ?>' title='Nutzer/in trotzdem löschen'><?=Icon::create('remove-circle')?></a><br/></td>
         </tr>

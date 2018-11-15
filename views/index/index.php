@@ -5,15 +5,15 @@
 <h1>Zur Löschung vorgemerkte Nutzeraccounts (<?= count($data) ?>)</h1>
 
 
-<table class='default'>
+<table class='tablesorter default'>
     <thead>
-		<tr>
-        <th style='width:10%'><span>Username (Vorname Nachname)</span></th>
-        <th style='width:10%'><span>EMail</span></th>
+		<tr class="sortable">
+        <th data-sort="text" style='width:10%'><span>Username (Vorname Nachname)</span></th>
+        <th data-sort="text" style='width:10%'><span>EMail</span></th>
         <th style='width:5%'><span>1. Infomail erhalten</span></th>
         <th style='width:5%'><span>2. Infomail erhalten</span></th>
-        <th style='width:5%'><span>Zuletzt aktiv am</span></th>
-        <th style='width:10%'><span>Löschung geplant am</span></th>
+        <th data-sort="text" style='width:5%'><span>Zuletzt aktiv am</span></th>
+        <th data-sort="text" style='width:10%'><span>Löschung geplant am</span></th>
         <th style='width:10%'>Aktionen</th>
         <!--<th>Courseware besucht?</th>-->
     </tr>

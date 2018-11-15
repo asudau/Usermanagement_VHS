@@ -18,6 +18,7 @@
         <th style='width:5%'><span>EMail</span></th>
         <th style='width:5%'><span>Anzahl Dozenten</span></th>
         <th style='width:10%'><span>Veranstaltung</span></th>
+        <th data-sort="text" style='width:5%'><span>Zuletzt aktiv am</span></th>
         <th style='width:10%'>Aktionen</th>
         <!--<th>Courseware besucht?</th>-->
     </tr>
@@ -31,6 +32,7 @@
             <td>
                 <?= $membership->course_name ? $membership->course_name . '<br>' : ''?> 
             </td>
+            <td><?= date('d.m.Y', $d['last_lifesign']) ?></td>
             <td>
                 <a onclick="return confirm('Veranstaltung archivieren? Dieser Schritt kann nciht rückgängig gemacht werden! Sie haben anschließend keinen Zugriff mehr auf Inhalte der Veranstaltung.')" href='<?=$this->controller->url_for('index/archiveseminar/' . $membership->seminar_id) ?>' title='Veranstaltung archivieren'><?=Icon::create('archive3')?></a>
                 <?= $this->controller->get_mp($membership->seminar_id) ?>
