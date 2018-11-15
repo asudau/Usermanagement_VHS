@@ -95,6 +95,11 @@ class IndexController extends StudipController {
             if(UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
                 $seminar_user = new Seminar_User(User::find($status_info->user_id));
                 $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status, 'last_lifesign' => $seminar_user->get_last_action());
+            } else {
+                //Expiration date wurde manuell entfernt
+                $status_info->account_status = 0;
+                $status_info->chdate = time();
+                $status_info->store();
             }
         }
                
