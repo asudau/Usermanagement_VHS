@@ -113,25 +113,26 @@ class IndexController extends StudipController {
         foreach ($status_infos as $status_info){
             $seminare = [];
             $user = User::find($status_info->user_id);
-            if ($user->course_memberships->findBy('status', 'dozent')){
-                $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
-                foreach($seminare_dozent as $membership){
-                    if (Course::find($membership->seminar_id)){
-                        $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
-                        if ($count < 2){
-                            $seminare[] = $membership;
-                        }
+            $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
+            $single_dozent = false;
+            foreach($seminare_dozent as $membership){
+                if (Course::find($membership->seminar_id)){
+                    $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
+                    if ($count < 2){
+                        $seminare[] = $membership;
+                        $single_dozent = true;
                     }
                 }
-                if(UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
-                    $seminar_user = new Seminar_User($user);
-                    $this->data[] = array('user' => $user, 
-                        'status' => $status_info->account_status,
-                        'seminare' => $seminare,
-                        'last_lifesign' => $seminar_user->get_last_action()
-                        );
-                }
-            } else {
+            }
+            if($single_dozent && UserConfig::get($status_info->user_id)->getValue(EXPIRATION_DATE)){
+                $seminar_user = new Seminar_User($user);
+                $this->data[] = array('user' => $user, 
+                    'status' => $status_info->account_status,
+                    'seminare' => $seminare,
+                    'last_lifesign' => $seminar_user->get_last_action()
+                    );
+            } else if(!$single_dozent){
+                //Konflikt wurde behoben und Account kann wieder in Löschroutine aufgenommen werden
                 $status_info->account_status = 2;
                 $status_info->chdate = time();
                 $status_info->store();
