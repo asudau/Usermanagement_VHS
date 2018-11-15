@@ -71,8 +71,11 @@ class IndexController extends StudipController {
         $status_infos = UsermanagementAccountStatus::findBySQL("account_status IN (1, 2) AND delete_mode LIKE 'aktivitaet'");
         $this->data = array();
         foreach ($status_infos as $status_info){
-            $seminar_user = new Seminar_User(User::find($status_info->user_id));
-            $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status, 'last_lifesign' => $seminar_user->get_last_action());
+            if(User::find($status_info->user_id)){
+                $seminar_user = new Seminar_User(User::find($status_info->user_id));
+                $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status, 'last_lifesign' => $seminar_user->get_last_action());    
+            } else 
+                $status_info->delete(); //zugehörigen Nutzer gibt es nicht mehr
         }
         
         $status_infos = UsermanagementAccountStatus::findBySQL("delete_mode LIKE 'nie loeschen'");
