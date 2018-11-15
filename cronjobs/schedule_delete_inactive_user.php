@@ -140,6 +140,12 @@ class ScheduleDeleteInactiveUser extends CronJob
         $sec_per_day = 86400;
         //Löschung in x tagen, siehe konfiguration
         $time_till_delete = Config::get()->getValue(USER_INACTIVITY_TIME_TILL_DELETE);
+        $user = User::find($user_id);
+        
+        //falls es keinen Nutzer mehr zu diesem Eintrag gibt, Eintrag löschen
+        if (!$user && $status_info){
+            $status_info->delete();
+        } else {
         
             //wenn die Gültigkeit des Accounts von der Aktivität abhängt und noch keine Mail versendet wurde (status == 0)
             if ($status_info->account_status == 0 && $status_info->delete_mode == 'aktivitaet'){
@@ -160,7 +166,6 @@ class ScheduleDeleteInactiveUser extends CronJob
             } else if (($status_info->account_status == 2 || $status_info->account_status == 5 ) && $status_info->delete_mode == 'aktivitaet'){
                 //account nicht mehr gültig und zur Löschung vorgesehen
                 if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
-                    $user = User::find($user_id);
                     $single_dozent_in_seminar = false;
                     $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
                     foreach($seminare_dozent as $membership){
@@ -170,8 +175,8 @@ class ScheduleDeleteInactiveUser extends CronJob
                         }
                         //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
                     } if (!$single_dozent_in_seminar){
-                        $user = new UserManagement($user_id);
-                        $user->deleteUser(false); //false: Dokumente nicht löschen
+                        $user_mng = new UserManagement($user_id);
+                        $user_mng->deleteUser(false); //false: Dokumente nicht löschen
                         //account gelöscht (status == 6)
                         $status_info->account_status = 6;
                         $status_info->chdate = time();
@@ -202,8 +207,7 @@ class ScheduleDeleteInactiveUser extends CronJob
                 $status_info->store();
             }
             
-            
-            else echo 'nix mehr zu tun';
+        }
     }
   
 }
