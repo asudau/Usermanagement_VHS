@@ -113,7 +113,7 @@ class IndexController extends StudipController {
         foreach ($status_infos as $status_info){
             $seminare = [];
             $user = User::find($status_info->user_id);
-            if ($user->course_memberships){
+            if ($user->course_memberships->findBy('status', 'dozent')){
                 $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
                 foreach($seminare_dozent as $membership){
                     if (Course::find($membership->seminar_id)){
