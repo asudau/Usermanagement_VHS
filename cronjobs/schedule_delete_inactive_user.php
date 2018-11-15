@@ -196,6 +196,7 @@ class ScheduleDeleteInactiveUser extends CronJob
                 //schedule_for_delete_and_inform
                 self::scheduleForDeleteAndInform($status_info);
             } if ($status_info && !UserConfig::get($user_id)->getValue(EXPIRATION_DATE)){
+                //Expiration Date wurde manuell entfernt
                 $status_info->account_status = 0;
                 $status_info->chdate = time();
                 $status_info->store();
