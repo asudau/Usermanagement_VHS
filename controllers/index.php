@@ -105,6 +105,24 @@ class IndexController extends StudipController {
                
     }
     
+    public function changemail_action($user_id)
+    {
+        $user = User::find($user_id);
+        $this->mail = $user->email;
+        $this->user_id = $user_id;
+    }
+    
+    public function savemail_action($user_id)
+    {
+        $user = User::find($user_id);
+        $user->email = Request::get('email');
+        if ($user->store()){
+            $message = MessageBox::success(sprintf(_('Mailadresse von %s wurde geändert'), $user->username));
+            PageLayout::postMessage($message);
+        }
+        $this->redirect($this::url_for('/index/nomail'));
+    }
+    
     public function problemdelete_action()
     {
         Navigation::activateItem('admin/usermanagement/problemdelete');
