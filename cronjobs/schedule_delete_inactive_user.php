@@ -120,7 +120,21 @@ class ScheduleDeleteInactiveUser extends CronJob
             //wenn letzte Nutzeraktivität länger her ist als x (x wird in Konfiguration festgelegt)
             $db = DBManager::get();
             $query = 'SELECT user_id FROM user_online WHERE last_lifesign < :time';
+            $query_2 = 'SELECT user_id FROM auth_user_md5 '
+                    . 'LEFT JOIN user_info USING (user_id) '
+                    . 'WHERE user_info.mkdate < :time '
+                    . 'AND NOT EXISTS (SELECT user_id FROM user_online WHERE user_online.user_id LIKE auth_user_md5.user_id)';
             $statement = $db->prepare($query);
+            $statement->execute(array(':time'=> $last_inactivity));
+            $inactive_users = $statement->fetchAll();
+
+            foreach ($inactive_users as $user_id) {
+                echo 'inaktiv: ' . $user_id[0] . ' \n';
+                self::check_on_user($user_id[0]);
+
+            }
+            
+            $statement = $db->prepare($query_2);
             $statement->execute(array(':time'=> $last_inactivity));
             $inactive_users = $statement->fetchAll();
 

@@ -25,7 +25,7 @@
             <td><?= $d['user']['Email']?></td>
             <td><?= in_array($d['status'], array("1", "2")) ? 'x' : '-' ?> </td>
             <td><?= $d['status']== 2 ? 'x' : '-' ?> </td>
-            <td><?= date('d.m.Y', $d['last_lifesign']) ?></td>
+            <td><?= $d['last_lifesign'] ? date('d.m.Y', $d['last_lifesign']) : 'noch nie' ?></td>
             <td><?= date('d.m.Y', UserConfig::get($d['user']['user_id'])->getValue(EXPIRATION_DATE)) ?></td>
             <td><a href='<?=$this->controller->url_for('index/unset/' . $d['user']['user_id']) ?>' title='Dauerhafte Ausnahme für Nutzer einrichten'><?=Icon::create('remove')?></a><br/></td>
         </tr>

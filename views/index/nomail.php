@@ -27,7 +27,7 @@
         
             <td><?= $d['user']['username'] . ' (' . $d['user']['Vorname'] . ' ' . $d['user']['Nachname'] . ') '?></td>
             <td><?= $d['user']['Email']?></td>
-            <td><?= date('d.m.Y', $d['last_lifesign']) ?></td>
+            <td><?= $d['last_lifesign'] ? date('d.m.Y', $d['last_lifesign']) : 'noch nie' ?></td>
             <td><?= date('d.m.Y', UserConfig::get($d['user']['user_id'])->getValue(EXPIRATION_DATE)) ?></td>
             <td><a href='<?=$this->controller->url_for('index/delete_without_mail/' . $d['user']['user_id']) ?>' title='Nutzer/in trotzdem löschen'><?=Icon::create('remove-circle')?></a><br/></td>
         </tr>

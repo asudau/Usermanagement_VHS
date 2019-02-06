@@ -32,7 +32,7 @@
             <td>
                 <?= $membership->course_name ? $membership->course_name . '<br>' : ''?> 
             </td>
-            <td><?= date('d.m.Y', $d['last_lifesign']) ?></td>
+            <td><?= $d['last_lifesign'] ? date('d.m.Y', $d['last_lifesign']) : 'noch nie' ?></td>
             <td>
                 <a onclick="return confirm('Veranstaltung archivieren? Dieser Schritt kann nciht rückgängig gemacht werden! Sie haben anschließend keinen Zugriff mehr auf Inhalte der Veranstaltung.')" href='<?=$this->controller->url_for('index/archiveseminar/' . $membership->seminar_id) ?>' title='Veranstaltung archivieren'><?=Icon::create('archive3')?></a>
                 <?= $this->controller->get_mp($membership->seminar_id) ?>
