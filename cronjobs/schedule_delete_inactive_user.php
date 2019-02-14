@@ -4,7 +4,9 @@
 * @author Annelene Sudau <asudau@uos.de>
 * @access public
  * 
- * 
+ * delete_mode course_end
+ * delete_mode aktivitaet
+ * delete_mode nie loeschen
  * status   0 == keine Aktion erforderlich/Löschvermerk zurückgesetzt
  * status   1 == zur Löschung vorgemerkt
  * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
@@ -120,10 +122,6 @@ class ScheduleDeleteInactiveUser extends CronJob
             //wenn letzte Nutzeraktivität länger her ist als x (x wird in Konfiguration festgelegt)
             $db = DBManager::get();
             $query = 'SELECT user_id FROM user_online WHERE last_lifesign < :time';
-            $query_2 = 'SELECT user_id FROM auth_user_md5 '
-                    . 'LEFT JOIN user_info USING (user_id) '
-                    . 'WHERE user_info.mkdate < :time '
-                    . 'AND NOT EXISTS (SELECT user_id FROM user_online WHERE user_online.user_id LIKE auth_user_md5.user_id)';
             $statement = $db->prepare($query);
             $statement->execute(array(':time'=> $last_inactivity));
             $inactive_users = $statement->fetchAll();
@@ -134,7 +132,13 @@ class ScheduleDeleteInactiveUser extends CronJob
 
             }
             
-            $statement = $db->prepare($query_2);
+            //wenn Nutzer nie aktiv war und der Account vor mehr als x Tagen erstellt wurde (x wird in Konfiguration festgelegt)
+            $query = 'SELECT user_id FROM auth_user_md5 '
+                    . 'LEFT JOIN user_info USING (user_id) '
+                    . 'WHERE user_info.mkdate < :time '
+                    . 'AND NOT EXISTS (SELECT user_id FROM user_online WHERE user_online.user_id LIKE auth_user_md5.user_id)';
+            
+            $statement = $db->prepare($query);
             $statement->execute(array(':time'=> $last_inactivity));
             $inactive_users = $statement->fetchAll();
 
@@ -155,64 +159,71 @@ class ScheduleDeleteInactiveUser extends CronJob
         //Löschung in x tagen, siehe konfiguration
         $time_till_delete = Config::get()->getValue(USER_INACTIVITY_TIME_TILL_DELETE);
         $user = User::find($user_id);
-        
-        //wenn die Gültigkeit des Accounts von der Aktivität abhängt und noch keine Mail versendet wurde (status == 0)
-        if ($status_info->account_status == 0 && $status_info->delete_mode == 'aktivitaet'){
-            echo 'schedulefordeleteandinform ' . $user_id;
-            //schedule_for_delete_and_inform
-            self::scheduleForDeleteAndInform($status_info);
-
-        } else if ($status_info->account_status == 1 && $status_info->delete_mode == 'aktivitaet'){
-            $expiration = UserConfig::get($user_id)->getValue("EXPIRATION_DATE");
-            $time = time();
-            //wenn Halbzeit bis Löschung: Erinnerungsmail //TODO 2 frühestens wochen vor Löschung
-            if ($time > ($expiration - ($sec_per_day*7))){
-                echo 'noch eine woche für ' . $user_id;
-                self::scheduleForDeleteAndInform($status_info, true);
+        if ($user->Email == 'rlucke@uos.de'){
+            if ($status_info){
+                $status_info->delete_mode == 'nie loeschen';
+                $status_info->store();
             }
+            
+        } else {
+            //wenn die Gültigkeit des Accounts von der Aktivität abhängt und noch keine Mail versendet wurde (status == 0)
+            if ($status_info->account_status == 0 && $status_info->delete_mode == 'aktivitaet'){
+                echo 'schedulefordeleteandinform ' . $user_id;
+                //schedule_for_delete_and_inform
+                self::scheduleForDeleteAndInform($status_info);
 
-        //Nutzer hat alle Infomails erhalten (2) oder fehlerhafte Mailadresse soll ignoriert werden (5)   
-        } else if (($status_info->account_status == 2 || $status_info->account_status == 5 ) && $status_info->delete_mode == 'aktivitaet'){
-            //account nicht mehr gültig und zur Löschung vorgesehen
-            if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
-                $single_dozent_in_seminar = false;
-                $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
-                foreach($seminare_dozent as $membership){
-                    $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
-                    if ($count < 2){
-                        $single_dozent_in_seminar = true;
-                    }
-                    //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
-                } if (!$single_dozent_in_seminar){
-                    $user_mng = new UserManagement($user_id);
-                    $user_mng->deleteUser(false); //false: Dokumente nicht löschen
-                    //account gelöscht (status == 6)
-                    $status_info->account_status = 6;
-                    $status_info->chdate = time();
-                    $status_info->store();
-                } else {
-                    //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
-                    $status_info->account_status = 4;
-                    $status_info->chdate = time();
-                    $status_info->store();
+            } else if ($status_info->account_status == 1 && $status_info->delete_mode == 'aktivitaet'){
+                $expiration = UserConfig::get($user_id)->getValue("EXPIRATION_DATE");
+                $time = time();
+                //wenn Halbzeit bis Löschung: Erinnerungsmail //TODO 2 frühestens wochen vor Löschung
+                if ($time > ($expiration - ($sec_per_day*7))){
+                    echo 'noch eine woche für ' . $user_id;
+                    self::scheduleForDeleteAndInform($status_info, true);
                 }
-            }
 
-        } else if (!$status_info){
-            //Neuen Eintrag im Usermanagement anlegen
-            $status_info = new UsermanagementAccountStatus();
-            $status_info->user_id = $user_id;
-            $status_info->account_status = 0;
-            $status_info->delete_mode = 'aktivitaet'; //wenn nichts anderes bekannt ist das der default delete_mode
-            $status_info->chdate = time();
-            $status_info->store();
-            //schedule_for_delete_and_inform
-            self::scheduleForDeleteAndInform($status_info);
-        } if ($status_info && !UserConfig::get($user_id)->getValue(EXPIRATION_DATE)){
-            //Expiration Date wurde manuell entfernt
-            $status_info->account_status = 0;
-            $status_info->chdate = time();
-            $status_info->store();
+            //Nutzer hat alle Infomails erhalten (2) oder fehlerhafte Mailadresse soll ignoriert werden (5)   
+            } else if (($status_info->account_status == 2 || $status_info->account_status == 5 ) && $status_info->delete_mode == 'aktivitaet'){
+                //account nicht mehr gültig und zur Löschung vorgesehen
+                if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
+                    $single_dozent_in_seminar = false;
+                    $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
+                    foreach($seminare_dozent as $membership){
+                        $count = CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent');
+                        if ($count < 2){
+                            $single_dozent_in_seminar = true;
+                        }
+                        //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
+                    } if (!$single_dozent_in_seminar){
+                        $user_mng = new UserManagement($user_id);
+                        $user_mng->deleteUser(false); //false: Dokumente nicht löschen
+                        //account gelöscht (status == 6)
+                        $status_info->account_status = 6;
+                        $status_info->chdate = time();
+                        $status_info->store();
+                    } else {
+                        //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
+                        $status_info->account_status = 4;
+                        $status_info->chdate = time();
+                        $status_info->store();
+                    }
+                }
+
+            } else if (!$status_info){
+                //Neuen Eintrag im Usermanagement anlegen
+                $status_info = new UsermanagementAccountStatus();
+                $status_info->user_id = $user_id;
+                $status_info->account_status = 0;
+                $status_info->delete_mode = 'aktivitaet'; //wenn nichts anderes bekannt ist das der default delete_mode
+                $status_info->chdate = time();
+                $status_info->store();
+                //schedule_for_delete_and_inform
+                self::scheduleForDeleteAndInform($status_info);
+            } if ($status_info && !UserConfig::get($user_id)->getValue(EXPIRATION_DATE)){
+                //Expiration Date wurde manuell entfernt
+                $status_info->account_status = 0;
+                $status_info->chdate = time();
+                $status_info->store();
+            }
         }
                  
     }
