@@ -16,6 +16,7 @@
 		<tr>
         <th style='width:10%'><span>Username (Vorname Nachname)</span></th>
         <th style='width:10%'><span>EMail</span></th>
+        <th style='width:10%'><span>Status</span></th>
         <th style='width:5%'><span>Zuletzt aktiv am</span></th>
         <th style='width:10%'><span>Löschung geplant am</span></th>
         <th style='width:10%'>Aktionen</th>
@@ -27,6 +28,7 @@
         
             <td><?= $d['user']['username'] . ' (' . $d['user']['Vorname'] . ' ' . $d['user']['Nachname'] . ') '?></td>
             <td><a title='Mailadresse ändern' href="<?= $this->controller->url_for('index/changemail/' . $d['user']['user_id']) ?>" data-dialog='size=small'><?= $d['user']['Email']?>  <?=Icon::create('edit', 'clickable')?></a></td>
+            <td><?= $d['user']['perms']?></td>
             <td><?= $d['last_lifesign'] ? date('d.m.Y', $d['last_lifesign']) : 'noch nie' ?></td>
             <td><?= date('d.m.Y', UserConfig::get($d['user']['user_id'])->getValue(EXPIRATION_DATE)) ?></td>
             <td><a href='<?=$this->controller->url_for('index/delete_without_mail/' . $d['user']['user_id']) ?>' title='Nutzer/in trotzdem löschen'><?=Icon::create('remove-circle')?></a><br/></td>
