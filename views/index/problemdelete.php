@@ -30,7 +30,7 @@
             <td><?= $d['user']['Email']?></td>
             <td><?= CourseMember::countByCourseAndStatus($membership->seminar_id, 'dozent') ?> </td>
             <td>
-                <a href='<?=URLHelper::getLink("/seminar_main.php?auswahl=" . $membership->course_id )?>' target="_blank">
+                <a href='<?=URLHelper::getLink("/seminar_main.php?auswahl=" . $membership->seminar_id )?>' target="_blank">
                     <?= $membership->course_name ? $membership->course_name . '<br>' : ''?> 
                 </a>
             </td>
