@@ -2,12 +2,12 @@
 
 <body>
     <div>
-<h1>Dozentenaccounts konnten nicht gelöscht werden (<?= count($data) ?>)</h1>
-<p>Dozent/Innen die in einer oder mehreren Veranstaltungen als <b> einzige/r </b> Dozent/in eingetragen sind können nicht gelöscht werden. Mögliche Lösungen zum Beheben des Konfliktes:
+<h1>Dozentenaccounts konnten nicht gelÃ¶scht werden (<?= count($data) ?>)</h1>
+<p>Dozent/Innen die in einer oder mehreren Veranstaltungen als <b> einzige/r </b> Dozent/in eingetragen sind kÃ¶nnen nicht gelÃ¶scht werden. MÃ¶gliche LÃ¶sungen zum Beheben des Konfliktes:
 <ul>
-    <li>Veranstaltung archivieren (Achtung kein Zugriff/Wiederherstellung der Veranstaltung möglich)</li>
+    <li>Veranstaltung archivieren (Achtung kein Zugriff/Wiederherstellung der Veranstaltung mÃ¶glich)</li>
     <li>weitere aktive Dozierende eintragen</li>
-    <li>ignorieren (Account wird nicht gelöscht werden)</li>
+    <li>ignorieren (Account wird nicht geÃ¶scht werden)</li>
 </ul>
     </p>
 
@@ -38,7 +38,7 @@
             <td>
                 <a   onclick="return STUDIP.Dialog.confirmAsPost('<?=
                        sprintf(
-                           _('Veranstaltung archivieren? Dieser Schritt kann nicht rückgängig gemacht werden! Sie haben anschließend keinen Zugriff mehr auf Inhalte der Veranstaltung.')
+                           _('Veranstaltung archivieren? Dieser Schritt kann nicht rÃ¼ckgÃ¤ngig gemacht werden! Sie haben anschlieÃŸend keinen Zugriff mehr auf Inhalte der Veranstaltung.')
                        ) ?>', this.href);"> href='<?=$this->controller->url_for('index/archiveseminar/' . $membership->seminar_id) ?>' title='Veranstaltung archivieren'><?=Icon::create('archive3')?></a>
                 <?= $this->controller->get_mp($membership->seminar_id) ?>
             </td>
