@@ -1,6 +1,6 @@
 pluginname=Usermanagement
 pluginclassname=Usermanagement_VHS
 origin=elan-ev
-version=1.4
+version=2.0
 studipMinVersion=4.0
 studipMaxVersion=4.2.99
