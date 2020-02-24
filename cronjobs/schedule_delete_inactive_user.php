@@ -7,13 +7,13 @@
  * delete_mode course_end
  * delete_mode aktivitaet
  * delete_mode nie loeschen
- * status   0 == keine Aktion erforderlich/Löschvermerk zurückgesetzt
- * status   1 == zur Löschung vorgemerkt
- * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
- * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
- * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
- * status   5 == Nutzer trotz fehlerhafler Mailadresse löschen
- * status   6 == erfolgreich gelöscht
+ * status   0 == keine Aktion erforderlich/Lï¿½schvermerk zurï¿½ckgesetzt
+ * status   1 == zur Lï¿½schung vorgemerkt
+ * status   2 == zur Lï¿½schung vorgemerkt und Erinnerungsmail wurde verschickt
+ * status   3 == zur Lï¿½schung vorgemerkt aber Mail konnte nicht zugestellt werden
+ * status   4 == konnte nicht gelï¿½scht werden weil einziger Dozent in VA
+ * status   5 == Nutzer trotz fehlerhafler Mailadresse lï¿½schen
+ * status   6 == erfolgreich gelï¿½scht
 */
 require_once 'lib/classes/CronJob.class.php';
 
@@ -22,12 +22,12 @@ class ScheduleDeleteInactiveUser extends CronJob
 
     public static function getName()
     {
-        return dgettext('Erweitertes Usermanagement', 'Inaktive Nutzer per Mail informieren und für Löschung vormerken');
+        return dgettext('Erweitertes Usermanagement', 'Inaktive Nutzer per Mail informieren und fÃ¼r LÃ¶schung vormerken');
     }
 
     public static function getDescription()
     {
-        return dgettext('Erweitertes Usermanagement', 'Inaktive Nutzer per Mail informieren und für Löschung vormerken');
+        return dgettext('Erweitertes Usermanagement', 'Inaktive Nutzer per Mail informieren und fÃ¼r LÃ¶schung vormerken');
     }
     
     private static function sendInfoMail($user_id, $remind = false){
@@ -76,12 +76,12 @@ class ScheduleDeleteInactiveUser extends CronJob
             $time = time();
             $sec_per_day = 86400;
             if (!$remind){
-                //Löschung in x tagen, siehe konfiguration
+                //Lï¿½schung in x tagen, siehe konfiguration
                 $time_till_delete = Config::get()->getValue(USER_INACTIVITY_TIME_TILL_DELETE);
                 UserConfig::get($status_info->user_id)->store("EXPIRATION_DATE", $time + ($sec_per_day*$time_till_delete));
                 $status_info->account_status = 1;
                 $status_info->store();
-                //wenn zur Löschung vorgemerkt (status == 1)
+                //wenn zur Lï¿½schung vorgemerkt (status == 1)
                 echo 'vorgemerkt: ' . $status_info->user_id . ' \n';
             } else {
                 $status_info->account_status = 2;
@@ -119,7 +119,7 @@ class ScheduleDeleteInactiveUser extends CronJob
         } else {
             
             echo 'los gehts';
-            //wenn letzte Nutzeraktivität länger her ist als x (x wird in Konfiguration festgelegt)
+            //wenn letzte Nutzeraktivitï¿½t lï¿½nger her ist als x (x wird in Konfiguration festgelegt)
             $db = DBManager::get();
             $query = 'SELECT user_id FROM user_online WHERE last_lifesign < :time';
             $statement = $db->prepare($query);
@@ -156,7 +156,7 @@ class ScheduleDeleteInactiveUser extends CronJob
         
         $status_info = UsermanagementAccountStatus::find($user_id);
         $sec_per_day = 86400;
-        //Löschung in x tagen, siehe konfiguration
+        //Lï¿½schung in x tagen, siehe konfiguration
         $time_till_delete = Config::get()->getValue(USER_INACTIVITY_TIME_TILL_DELETE);
         $user = User::find($user_id);
         if ($user->Email == 'rlucke@uos.de'){
@@ -166,7 +166,7 @@ class ScheduleDeleteInactiveUser extends CronJob
             }
             
         } else {
-            //wenn die Gültigkeit des Accounts von der Aktivität abhängt und noch keine Mail versendet wurde (status == 0)
+            //wenn die Gï¿½ltigkeit des Accounts von der Aktivitï¿½t abhï¿½ngt und noch keine Mail versendet wurde (status == 0)
             if ($status_info->account_status == 0 && $status_info->delete_mode == 'aktivitaet'){
                 echo 'schedulefordeleteandinform ' . $user_id;
                 //schedule_for_delete_and_inform
@@ -175,15 +175,15 @@ class ScheduleDeleteInactiveUser extends CronJob
             } else if ($status_info->account_status == 1 && $status_info->delete_mode == 'aktivitaet'){
                 $expiration = UserConfig::get($user_id)->getValue("EXPIRATION_DATE");
                 $time = time();
-                //wenn Halbzeit bis Löschung: Erinnerungsmail //TODO 2 frühestens wochen vor Löschung
+                //wenn Halbzeit bis Lï¿½schung: Erinnerungsmail //TODO 2 frï¿½hestens wochen vor Lï¿½schung
                 if ($time > ($expiration - ($sec_per_day*7))){
-                    echo 'noch eine woche für ' . $user_id;
+                    echo 'noch eine woche fÃ¼r ' . $user_id;
                     self::scheduleForDeleteAndInform($status_info, true);
                 }
 
             //Nutzer hat alle Infomails erhalten (2) oder fehlerhafte Mailadresse soll ignoriert werden (5)   
             } else if (($status_info->account_status == 2 || $status_info->account_status == 5 ) && $status_info->delete_mode == 'aktivitaet'){
-                //account nicht mehr gültig und zur Löschung vorgesehen
+                //account nicht mehr gï¿½ltig und zur Lï¿½schung vorgesehen
                 if (UserConfig::get($user_id)->getValue(EXPIRATION_DATE) < time()){
                     $single_dozent_in_seminar = false;
                     $seminare_dozent = $user->course_memberships->findBy('status', 'dozent');
@@ -192,16 +192,16 @@ class ScheduleDeleteInactiveUser extends CronJob
                         if ($count < 2){
                             $single_dozent_in_seminar = true;
                         }
-                        //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
+                        //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account lï¿½schen
                     } if (!$single_dozent_in_seminar){
                         $user_mng = new UserManagement($user_id);
-                        $user_mng->deleteUser(false); //false: Dokumente nicht löschen
-                        //account gelöscht (status == 6)
+                        $user_mng->deleteUser(false); //false: Dokumente nicht lï¿½schen
+                        //account gelï¿½scht (status == 6)
                         $status_info->account_status = 6;
                         $status_info->chdate = time();
                         $status_info->store();
                     } else {
-                        //Dozent kann nicht gelöscht werden weil einziger Dozent in VA (status == 4)
+                        //Dozent kann nicht gelï¿½scht werden weil einziger Dozent in VA (status == 4)
                         $status_info->account_status = 4;
                         $status_info->chdate = time();
                         $status_info->store();
