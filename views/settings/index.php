@@ -1,6 +1,6 @@
 <html>
 
-<fieldset>
+
 <h1>Konfiguration</h1>
 
 <? foreach($settings as $setting): ?>
@@ -16,7 +16,7 @@
 
 
 
-</fieldset>
+
 
 
 
