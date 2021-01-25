@@ -81,7 +81,9 @@ class IndexController extends StudipController {
         $status_infos = UsermanagementAccountStatus::findBySQL("delete_mode LIKE 'nie loeschen'");
         $this->data_spared = array();
         foreach ($status_infos as $status_info){
-            $this->data_spared[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+            if(User::find($status_info->user_id)){
+                $this->data_spared[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status);
+            }
         }
                 
     }
