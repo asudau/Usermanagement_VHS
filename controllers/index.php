@@ -1,12 +1,12 @@
 <?php
 /*
- * status   0 == keine Aktion erforderlich/Löschvermerk zurückgesetzt
- * status   1 == zur Löschung vorgemerkt
- * status   2 == zur Löschung vorgemerkt und Erinnerungsmail wurde verschickt
- * status   3 == zur Löschung vorgemerkt aber Mail konnte nicht zugestellt werden
- * status   4 == konnte nicht gelöscht werden weil einziger Dozent in VA
- * status   5 == Nutzer trotz fehlerhafler Mailadresse löschen
- * status   6 == erfolgreich gelöscht
+ * status   0 == keine Aktion erforderlich/Lï¿½schvermerk zurï¿½ckgesetzt
+ * status   1 == zur Lï¿½schung vorgemerkt
+ * status   2 == zur Lï¿½schung vorgemerkt und Erinnerungsmail wurde verschickt
+ * status   3 == zur Lï¿½schung vorgemerkt aber Mail konnte nicht zugestellt werden
+ * status   4 == konnte nicht gelï¿½scht werden weil einziger Dozent in VA
+ * status   5 == Nutzer trotz fehlerhafler Mailadresse lï¿½schen
+ * status   6 == erfolgreich gelï¿½scht
 */
 
 require_once 'lib/archiv.inc.php';
@@ -21,7 +21,7 @@ class IndexController extends StudipController {
         $navcreate = new LinksWidget();
         $navcreate->setTitle('Aktionen');
         //$attr = array("onclick"=>"showModalNewSupervisorGroupAction()");
-        //$navcreate->addLink("Ausnahme hinzufügen", $this::url_for('/index'), Icon::create('add'), $attr);
+        //$navcreate->addLink("Ausnahme hinzufï¿½gen", $this::url_for('/index'), Icon::create('add'), $attr);
         // add "add dozent" to infobox
         $search_obj = new SQLSearch("SELECT auth_user_md5.user_id, CONCAT(auth_user_md5.nachname, ', ', auth_user_md5.vorname, ' (' , auth_user_md5.email, ')' ) as fullname, username, perms "
                             . "FROM auth_user_md5 "
@@ -31,13 +31,13 @@ class IndexController extends StudipController {
                             //. "AND auth_user_md5.user_id NOT IN "
                             //. "(SELECT supervisor_group_user.user_id FROM supervisor_group_user WHERE supervisor_group_user.supervisor_group_id = '". $supervisorgroupid ."')  "
                             . "ORDER BY Vorname, Nachname ",
-                _("Ausnahme hinzufügen"), "username");
+                _("Ausnahme hinzufÃ¼gen"), "username");
         
         $mp = MultiPersonSearch::get('unset_user')
-            ->setLinkText(sprintf(_('Ausnahme hinzufügen')))
+            ->setLinkText(sprintf(_('Ausnahme hinzufÃ¼gen')))
             //->setDefaultSelectedUser($filtered_members['dozent']->pluck('user_id'))
             ->setLinkIconPath("")
-            ->setTitle(sprintf(_('Ausnahme hinzufügen')))
+            ->setTitle(sprintf(_('Ausnahme hinzufÃ¼gen')))
             ->setExecuteURL($this::url_for('/index/unset'))
             ->setSearchObject($search_obj)
             //->addQuickfilter(sprintf(_('%s der Einrichtung'), $this->status_groups['dozent']), $membersOfInstitute)
@@ -59,7 +59,7 @@ class IndexController extends StudipController {
     public function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        PageLayout::setTitle(_("Erweitertes Usermanagement - Übersicht"));
+        PageLayout::setTitle(_("Erweitertes Usermanagement - Ãœbersicht"));
 
         // $this->set_layout('layouts/base');
         //$this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
@@ -75,7 +75,7 @@ class IndexController extends StudipController {
                 $seminar_user = new Seminar_User(User::find($status_info->user_id));
                 $this->data[] = array('user' => User::find($status_info->user_id), 'status' => $status_info->account_status, 'last_lifesign' => $seminar_user->get_last_action());    
             } else 
-                $status_info->delete(); //zugehörigen Nutzer gibt es nicht mehr
+                $status_info->delete(); //zugehï¿½rigen Nutzer gibt es nicht mehr
         }
         
         $status_infos = UsermanagementAccountStatus::findBySQL("delete_mode LIKE 'nie loeschen'");
@@ -117,7 +117,7 @@ class IndexController extends StudipController {
         $user = User::find($user_id);
         $user->email = Request::get('email');
         if ($user->store()){
-            $message = MessageBox::success(sprintf(_('Mailadresse von %s wurde geändert'), $user->username));
+            $message = MessageBox::success(sprintf(_('Mailadresse von %s wurde geÃ¤ndert'), $user->username));
             PageLayout::postMessage($message);
         }
         $this->redirect($this::url_for('/index/nomail'));
@@ -150,7 +150,7 @@ class IndexController extends StudipController {
                     'last_lifesign' => $seminar_user->get_last_action()
                     );
             } else if(!$single_dozent){
-                //Konflikt wurde behoben und Account kann wieder in Löschroutine aufgenommen werden
+                //Konflikt wurde behoben und Account kann wieder in Lï¿½schroutine aufgenommen werden
                 $status_info->account_status = 2;
                 $status_info->chdate = time();
                 $status_info->store();
@@ -181,12 +181,12 @@ class IndexController extends StudipController {
             $status_info->chdate = time();
             UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
             if ($status_info->store() !== false) {
-                $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                $message = MessageBox::success(_('Der Nutzer wird auch im Falle lÃ¤ngerer InaktivitÃ¤t nicht gelÃ¶scht.'));
                 PageLayout::postMessage($message);
             }
         } else {
             $mp = MultiPersonSearch::load('unset_user');
-            # User der Gruppe hinzufügen
+            # User der Gruppe hinzufï¿½gen
             foreach ($mp->getAddedUsers() as $user_id) {
                 $status_info = UsermanagementAccountStatus::find($user_id);
                 if ($status_info){
@@ -195,7 +195,7 @@ class IndexController extends StudipController {
                     $status_info->chdate = time();
                     UserConfig::get($user_id)->store("EXPIRATION_DATE", NULL);
                     if ($status_info->store() !== false) {
-                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle lÃ¤ngerer InaktivitÃ¤t nicht gelÃ¶scht.'));
                         PageLayout::postMessage($message);
                     }
                 } else {
@@ -205,7 +205,7 @@ class IndexController extends StudipController {
                     $status_info->delete_mode = 'nie loeschen'; //wenn nichts anderes bekannt ist das der default delete_mode
                     $status_info->chdate = time();
                     if ($status_info->store() !== false) {
-                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle längerer Inaktivität nicht gelöscht.'));
+                        $message = MessageBox::success(_('Der Nutzer wird auch im Falle lÃ¤ngerer InaktivitÃ¤t nicht gelÃ¶scht.'));
                         PageLayout::postMessage($message);
                     }
                 }
@@ -222,7 +222,7 @@ class IndexController extends StudipController {
         $status_info->delete_mode = 'aktivitaet';
         $status_info->account_status = 0;
         if ($status_info->store() !== false) {
-            $message = MessageBox::success(_('Der Nutzer wird im Falle von Inaktivitaet gelöscht werden.'));
+            $message = MessageBox::success(_('Der Nutzer wird im Falle von Inaktivitaet gelÃ¶scht werden.'));
             PageLayout::postMessage($message);
         }
         $this->redirect($this::url_for('/index'));
@@ -236,10 +236,10 @@ class IndexController extends StudipController {
         $sem = new Seminar($sem_id);
         if ($sem){
             $old_dozenten = $sem->getMembers('dozent');
-            # User der Gruppe hinzufügen
+            # User der Gruppe hinzufï¿½gen
             foreach ($mp->getAddedUsers() as $user_id) {
                 $sem->addMember($user_id, 'dozent');
-                PageLayout::postMessage(MessageBox::success(_('Der Dozentenaccount wurd hinzugefügt.')));
+                PageLayout::postMessage(MessageBox::success(_('Der Dozentenaccount wurd hinzugefÃ¼gt.')));
             }
             foreach ($old_dozenten as $dozent){
                 $status_info = UsermanagementAccountStatus::find($dozent['user_id']);
@@ -252,9 +252,9 @@ class IndexController extends StudipController {
                         if ($count < 2){
                             //$single_dozent_in_seminar = true;
                         }
-                     //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account löschen
+                     //falls kein Seminar existiert in welchem dieser Nutzer einziger Dozent ist: Account lï¿½schen
                     } if (!$single_dozent_in_seminar){
-                        //zurücksetzen für standard lösch-prozess (status == 2)
+                        //zurï¿½cksetzen fï¿½r standard lï¿½sch-prozess (status == 2)
                         $status_info->account_status = 2;
                         $status_info->store();
                     }
@@ -269,7 +269,7 @@ class IndexController extends StudipController {
         $status_info = UsermanagementAccountStatus::find($user_id);
         $status_info->account_status = 5;
         if ($status_info->store()){
-                PageLayout::postMessage(MessageBox::success(_('Unzustellbare Mails werden für diesen Nutzer ignoriert.')));
+                PageLayout::postMessage(MessageBox::success(_('Unzustellbare Mails werden fÃ¼r diesen Nutzer ignoriert.')));
         }
         $this->redirect($this::url_for('/index/nomail'));
     }
@@ -289,7 +289,7 @@ class IndexController extends StudipController {
             ->setLinkText(sprintf(_('')))
             //->setDefaultSelectedUser($filtered_members['dozent']->pluck('user_id'))
             ->setLinkIconPath(Icon::create("person+add"))
-            ->setTitle(sprintf(_('Dozent hinzufügen')))
+            ->setTitle(sprintf(_('Dozent hinzufÃ¼gen')))
             ->setExecuteURL($this::url_for('/index/add_dozent/' . $seminar_id))
             ->setSearchObject($search_object)
             //->addQuickfilter(sprintf(_('%s der Einrichtung'), $this->status_groups['dozent']), $membersOfInstitute)
@@ -313,59 +313,6 @@ class IndexController extends StudipController {
         $args[0] = $to;
 
         return PluginEngine::getURL($this->dispatcher->plugin, $params, join('/', $args));
-    }
-    
-     public function sendMail_action($user_id)
-    {
-
-        $seminar_id = Course::findCurrent()->seminar_id;
-        $course = new Seminar($seminar_id);
-        $institute = new Institute($course->getInstitutId());
-        $zertifikatConfigEntry = UsermanagementAccountStatus::find($user_id);
-        $contact_mail = $zertifikatConfigEntry->getValue('contact_mail');
-        
-        $filepath = $this->pdf_action($user, $course->name, $institute->name);
-
-        $dateien = array($filepath);
-        
-        $mailtext = '<html>
-          
-
-            <body>
-
-            <h2>Teilnahmezertifikat für ' . $user . ':</h2>
-
-            <p>Im Anhang finden Sie ein Teilnahmezertifikat für den/die Teilnehmer/in einer Onlineschulung</p>
-
-            </body>
-            </html>
-            ';
-
-            $empfaenger = $contact_mail;//$contact_mail; //Mailadresse
-            //$absender   = "asudau@uos.de";
-            $betreff    = "Teilnahmezertifikat für " . $user . " für erfolgreiche Teilnahme an Mitarbeiterschulung";
-            $filename = 'zertifikat_'. $this->clear_string($user) . '.pdf';
-
-            $mail = new StudipMail();
-            $sent =  $mail->addRecipient($empfaenger)
-                //->addRecipient('elmar.ludwig@uos.de', 'Elmar Ludwig', 'Cc')
-                 ->setReplyToEmail('')
-                 ->setSenderEmail('')
-                 ->setSenderName('E-Learning - DSO - Datenschutz')
-                 ->setSubject($betreff)
-                 ->addFileAttachment($filepath, $name = $filename)
-                 ->setBodyHtml($mailtext)
-                 ->setBodyHtml(strip_tags($mailtext))  
-                 ->send();
- 
-            if ($sent){
-                PageLayout::postMessage(MessageBox::success(sprintf(_('e-Mail gesendet'), $sem_name)));
-                $this->redirect('index');
-            } else {
-                 PageLayout::postMessage(MessageBox::success(sprintf(_('Senden der eMail fehlgeschlagen'), $sem_name)));
-                $this->redirect('index');
-            }
-            
     }
     
 }
